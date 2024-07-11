@@ -14,6 +14,7 @@
 
             // Load parent Topic for each item
             angular.forEach($scope.items, function (item) {
+                console.log(item);
                 entityResource.getById(item.parentId,"Document")
                       .then(function(data) {
                           item.parentTopic = data.name;
