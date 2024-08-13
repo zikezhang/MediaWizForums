@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFrameworks>net7.0;net6.0</TargetFrameworks>
-    <Version>10.6.1-rc1</Version>
+    <TargetFrameworks>net8.0;net7.0;net6.0</TargetFrameworks>
+    <Version>14.0.1-rc1</Version>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
     <ContentTargetFolders>.</ContentTargetFolders>
     <PackageId>MediaWiz.Forums</PackageId>
@@ -18,26 +18,41 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageReleaseNotes>Fixed main template content</PackageReleaseNotes>
+    <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
 
+  <ItemGroup Condition="$(TargetFramework) == 'net8.0'">
+    <PackageReference Include="Microsoft.Maui.Graphics" Version="8.0.21" />
+    <PackageReference Include="Microsoft.Maui.Graphics.Skia" Version="8.0.21" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.8" />
+    <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="[13.3.2,13.999)" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="[13.3.2,13.999)" />
+    <PackageReference Include="Umbraco.Cms.Web.Website" Version="[13.3.2,13.999)" />
+  </ItemGroup>
   <ItemGroup Condition="$(TargetFramework) == 'net7.0'">
-    <PackageReference Include="Microsoft.Maui.Graphics" Version="7.0.52" />
-    <PackageReference Include="Microsoft.Maui.Graphics.Skia" Version="7.0.52" />
-    <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="11.4.2" />
-    <PackageReference Include="Umbraco.Cms.Web.Common" Version="11.4.2" />
-    <PackageReference Include="Umbraco.Cms.Web.Website" Version="11.4.2" />
+    <PackageReference Include="Microsoft.Maui.Graphics" Version="8.0.21" />
+    <PackageReference Include="Microsoft.Maui.Graphics.Skia" Version="8.0.21" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.8" />
+    <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="[11.4.2,12.999)" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="[11.4.2,12.999)" />
+    <PackageReference Include="Umbraco.Cms.Web.Website" Version="[11.4.2,12.999)" />
   </ItemGroup>
 
   <ItemGroup Condition="$(TargetFramework) == 'net6.0'">
-    <PackageReference Include="Microsoft.Maui.Graphics" Version="7.0.52" />
-    <PackageReference Include="Microsoft.Maui.Graphics.Skia" Version="7.0.52" />
-    <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="10.6.1" />
-    <PackageReference Include="Umbraco.Cms.Web.Common" Version="10.6.1" />
-    <PackageReference Include="Umbraco.Cms.Web.Website" Version="10.6.1" />
+    <PackageReference Include="Microsoft.Maui.Graphics" Version="8.0.3" />
+    <PackageReference Include="Microsoft.Maui.Graphics.Skia" Version="8.0.3" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.8" />
+    <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="[10.8.6,10.999)" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="[10.8.6,10.999)" />
+    <PackageReference Include="Umbraco.Cms.Web.Website" Version="[10.8.6,10.999)" />
   </ItemGroup>
 
 	<ItemGroup>
     <Content Include="App_Plugins\MediaWizards\**">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+    <Content Include="App_Plugins\ForumListView\**">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>Always</CopyToPublishDirectory>
     </Content>
@@ -52,8 +67,8 @@
     <None Include="bundleconfig.json" />
     <None Include="docs\readme.md" Pack="true" PackagePath="\" />
     <None Include="wwwroot\**" />
-	</ItemGroup>
-
+  </ItemGroup>
+  
 	<ItemGroup>
     <Content Remove="bundleconfig.json" />
   </ItemGroup>
@@ -63,6 +78,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+    <EmbeddedResource Include="Migrations\package-approval.xml" />
 	  <EmbeddedResource Include="Migrations\forumpackage.xml" />
 	  <EmbeddedResource Include="Migrations\package.xml" />
 	  <EmbeddedResource Include="Migrations\forumtemplates.xml" />
@@ -74,6 +90,7 @@
 	    <Pack>True</Pack>
 	    <PackagePath>\</PackagePath>
 	  </None>
+    <None Include=".\icon.png" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
 </Project>

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
 using Examine;
+using MediaWiz.Forums.Helpers;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Strings;
@@ -23,7 +25,7 @@ namespace MediaWiz.Forums.Migrations
         private readonly IExamineManager _examine;
         private readonly IMemberService _memberService;
         private readonly ILocalizationService _localizationService;
-
+        private readonly IOptions<ForumConfigOptions> _forumOptions;
 
         public PublishRootBranchPostMigration(
             ILogger<PublishRootBranchPostMigration> logger,
@@ -35,7 +37,7 @@ namespace MediaWiz.Forums.Migrations
             IShortStringHelper shortStringHelper,
             IExamineManager examine,
             IContentTypeService contentTypeService,
-            IMemberService memberService,ILocalizationService localizationService) : base(context)
+            IMemberService memberService,ILocalizationService localizationService,IOptions<ForumConfigOptions> forumOptions) : base(context)
         {
             _logger = logger;
             _memberGroupService = memberGroupService;
@@ -47,6 +49,7 @@ namespace MediaWiz.Forums.Migrations
             _contentTypeService = contentTypeService;
             _memberService = memberService;
             _localizationService = localizationService;
+            _forumOptions = forumOptions;
 
         }
 
@@ -60,7 +63,7 @@ namespace MediaWiz.Forums.Migrations
                 AddForumMemberType();
                 AddMemberGroups();
                 UpdatePostCounts();
-                //AddDictionaryItems();
+                AddDictionaryItems();
                 //Make sure the Forum root has been published
                 _contentService.SaveAndPublishBranch(contentForum, true);
             }
@@ -88,6 +91,7 @@ namespace MediaWiz.Forums.Migrations
                     {
                         var answerPropertyType = new PropertyType(_shortStringHelper, truefalse)
                         {
+                            Key = Guid.Parse("00CC1C63-9086-4A72-A21B-6CC84960B79B"),
                             Name = "Answer",
                             Alias = "answer",
                             Description = "Marked as solution/resolved.",
@@ -102,7 +106,7 @@ namespace MediaWiz.Forums.Migrations
             }
             catch (Exception e)
             {
-                _logger.LogError(e,"Adding Ansered property");
+                _logger.LogError(e,"Adding Answered property");
                 throw;
             }
 
@@ -122,6 +126,7 @@ namespace MediaWiz.Forums.Migrations
                     {
                         var replyCountPropertyType = new PropertyType(_shortStringHelper, integerDataType)
                         {
+                            Key = Guid.Parse("C2E08F2F-C35E-4CEE-9590-B3248A6ADB96"),
                             Name = "Replies",
                             Alias = "replyCount",
                             Description = "Number of replies.",
@@ -150,7 +155,7 @@ namespace MediaWiz.Forums.Migrations
             bool saveMemberContent = false;
 
             string groupname = "Forum Settings";
-            string mType = "forumMember";
+            string mType = _forumOptions.Value.MemberTypeAlias ?? "forumMember";
             IMemberType memberContentType = _memberTypeService.Get(mType);
             if (memberContentType == null)
             {
@@ -158,8 +163,9 @@ namespace MediaWiz.Forums.Migrations
                 {
                     _logger.LogDebug($"Creating MemberType={mType}");
                     memberContentType = new MemberType(_shortStringHelper, -1);
+                    memberContentType.Key = Guid.Parse("3CA42B51-86EC-41E8-B1C5-16B8657915CD");
                     memberContentType.Name = "Forum Member";
-                    memberContentType.Alias = "forumMember";
+                    memberContentType.Alias = _forumOptions.Value.MemberTypeAlias ?? "forumMember";
                     memberContentType.Icon = "icon-male-and-female";
                     _memberTypeService.Save(memberContentType);
                 }
@@ -280,18 +286,21 @@ namespace MediaWiz.Forums.Migrations
             if (_memberGroupService.GetByName("ForumMember") == null)
             {
                 IMemberGroup membergroup = new MemberGroup();
+                membergroup.Key = Guid.Parse("3BE527DD-E71A-4DC3-9768-B769780088F5");
                 membergroup.Name = "ForumMember";
                 _memberGroupService.Save(membergroup);
             }
             if (_memberGroupService.GetByName("ForumAdministrator") == null)
             {
                 IMemberGroup admingroup = new MemberGroup();
+                admingroup.Key = Guid.Parse("B81100F8-8622-4B09-B832-00741A9C46A5");
                 admingroup.Name = "ForumAdministrator";
                 _memberGroupService.Save(admingroup);
             }
             if (_memberGroupService.GetByName("ForumModerator") == null)
             {
                 IMemberGroup modgroup = new MemberGroup();
+                modgroup.Key = Guid.Parse("E0B79277-01C8-458F-A9C8-88AA60E2876E");
                 modgroup.Name = "ForumModerator";
                 _memberGroupService.Save(modgroup);
             }            
@@ -380,7 +389,9 @@ namespace MediaWiz.Forums.Migrations
                     newitem = _localizationService.GetDictionaryItemByKey("Forums.LoginUrl") ?? new DictionaryItem(parentnode.Key,"Forums.LoginUrl");
                     _localizationService.AddOrUpdateDictionaryValue(newitem,lang,"/login" );
                     _localizationService.Save(newitem);
-                    newitem = _localizationService.GetDictionaryItemByKey("Forums.Captcha.ErrMsg") ?? new DictionaryItem(parentnode.Key,"Forums.LoginUrl");
+
+                    newitem = _localizationService.GetDictionaryItemByKey("Forums.CaptchaErrMsg") ?? new DictionaryItem(parentnode.Key,"Forums.CaptchaErrMsg");
+
                     _localizationService.AddOrUpdateDictionaryValue(newitem,lang,"Incorrect answer" );
                     _localizationService.Save(newitem);
                     newitem = _localizationService.GetDictionaryItemByKey("Forums.RegisterUrl") ?? new DictionaryItem(parentnode.Key,"Forums.RegisterUrl");

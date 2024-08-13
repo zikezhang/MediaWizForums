@@ -36,15 +36,20 @@ namespace MediaWiz.Forums.Indexing
                 options.FieldDefinitions = new(
                     new("id", FieldDefinitionTypes.Integer),
                     new("message", FieldDefinitionTypes.FullText),
+                    new("subject", FieldDefinitionTypes.FullText),
                     new("author", FieldDefinitionTypes.FullText),
                     new("edited", FieldDefinitionTypes.DateTime),
                     new("postType", FieldDefinitionTypes.FullText),
-                    new("updated", FieldDefinitionTypes.DateTime),
-                    new ("lastpost", FieldDefinitionTypes.DateTime)
+                    new("updated", FieldDefinitionTypes.Long), //changed to long
+                    new ("lastpost", FieldDefinitionTypes.DateTime),
+                    new("answered", FieldDefinitionTypes.FullText),
+                    new("replies", FieldDefinitionTypes.FullText),
+                    new("requireApproval", FieldDefinitionTypes.Integer),
+                    new("approved", FieldDefinitionTypes.Integer)
                     );
 
                 options.UnlockIndex = true;
-                options.Validator = new ContentValueSetValidator(true, false, _publicAccessService, _scopeProvider, includeItemTypes: new[] { "forumPost" });
+                options.Validator = new ContentValueSetValidator(true,null,new[] { "forumPost" },null); //(true, null, _publicAccessService,  includeItemTypes: new[] { "forumPost" });
 
                 if (_settings.Value.LuceneDirectoryFactory == LuceneDirectoryFactory.SyncedTempFileSystemDirectoryFactory)
                 {

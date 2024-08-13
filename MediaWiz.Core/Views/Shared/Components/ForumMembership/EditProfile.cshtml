@@ -3,6 +3,9 @@
 @using Umbraco.Cms.Web.Website.Controllers
 @using Umbraco.Extensions
 @using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Umbraco.Cms.Core.Services
+@using MediaWiz.Forums.Extensions
+@inject ILocalizationService LocalizationService
 
 @{
 
@@ -19,20 +22,19 @@
     if (success)
     {
         @* This message will show if profileModel.RedirectUrl is not defined (default) *@
-        <p class="text-success">Profile updated</p>
+        <p class="text-success">@LocalizationService.GetOrCreateDictionaryValue("Forums.Profile.Updated","Profile updated")</p>
     }
     <nav>
         <div class="nav nav-tabs" id="nav-tab" role="tablist">
-            <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Profile</button>
-            <button class="nav-link" id="nav-files-tab" data-bs-toggle="tab" data-bs-target="#nav-files" data-id="@Model.CurrentUser?.Id" type="button" role="tab" aria-controls="nav-files" aria-selected="false">Files</button>
+            <button class="nav-link color_dark bold" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">@LocalizationService.GetOrCreateDictionaryValue("Forums.Profile","Profile")</button>
+            <button class="nav-link color_dark bold" id="nav-files-tab" data-bs-toggle="tab" data-bs-target="#nav-files" data-id="@Model.CurrentUser?.Id" type="button" role="tab" aria-controls="nav-files" aria-selected="false">@LocalizationService.GetOrCreateDictionaryValue("Forums.Profile.Files","Files")</button>
         </div>
     </nav>
     <div class="tab-content" id="nav-tabContent">
-        <div class="tab-pane fade show active" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+        <div class="tab-pane fade show active p-3" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
             @using (Html.BeginUmbracoForm<UmbProfileController>
                 ("HandleUpdateProfile", new { RedirectUrl = Model.ProfileModel?.RedirectUrl }))
                 {
-                <hr />
                 @if (!string.IsNullOrWhiteSpace(Model.ProfileModel.UserName))
                 {
                     <div class="mb-3">
@@ -71,7 +73,7 @@
 
                                 <span asp-validation-for="@Model.ProfileModel.MemberProperties[i].Value" class="form-text text-danger"></span>
                                 <div id="notifyHelp" class="form-text">
-                                    Receive an email when someone posts on the forum.
+                                    @LocalizationService.GetOrCreateDictionaryValue("Forums.Profile.NotifyHelp","Receive an email when someone posts on the forum.")
                                 </div>
                             </div>
                         }
@@ -88,13 +90,24 @@
                     }
                 }
 
-                <button type="submit" class="btn btn-dark">Update</button>
+                <button type="submit" class="btn btn-dark mb-3">@LocalizationService.GetOrCreateDictionaryValue("Forums.Update","Update")</button>
 
                 }
-                @*@await Component.InvokeAsync("PasswordManager",new {Template = "ChangePassword"})*@
+            <div class="accordion " id="accordionFlushExample">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="flush-headingOne">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                            Change Password
+                        </button>
+                    </h2>
+                    <div id="flush-collapseOne" class="accordion-collapse collapse p-3" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                        @await Component.InvokeAsync("PasswordManager", new { Template = "ChangePassword" })
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="tab-pane fade" id="nav-files" role="tabpanel" aria-labelledby="nav-files-tab" data-id="@Model.CurrentUser?.Id">
-            <p><label>No files uploaded</label></p>
+            <p><label>@LocalizationService.GetOrCreateDictionaryValue("Forums.Profile.Nofiles","No files uploaded") </label></p>
         </div>
     </div>
 

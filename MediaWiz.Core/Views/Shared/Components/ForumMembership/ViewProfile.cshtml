@@ -1,25 +1,28 @@
-﻿@model MediaWiz.Forums.ViewModels.ProfileViewModel
-
+﻿@using Umbraco.Cms.Core.Services
+@using MediaWiz.Forums.Extensions
+@model MediaWiz.Forums.ViewModels.ProfileViewModel
+@inject ILocalizationService LocalizationService
 @{
     var success = TempData["FormSuccess"] != null;
     if (Model.CurrentUser == null)
     {
         Context.Response.Redirect("/forums");
     }
+    var titleStr = LocalizationService.GetOrCreateDictionaryValue("Forums.Forum.Userprofile", "{0}'s Profile");
 }
 @if (Model.MemberIdentity != null)
 {
     if (success)
     {
         @* This message will show if profileModel.RedirectUrl is not defined (default) *@
-        <p class="text-success">Profile updated</p>
+        <p class="text-success">@LocalizationService.GetOrCreateDictionaryValue("Forums.Profile.Updated","Profile updated")</p>
     }
     else
     {
-        <h2>@Model.CurrentUser.UserName<text>'s Profile.</text></h2>
+        <h4>@String.Format(titleStr, Model.ViewMember.Name)</h4>
         <hr />
         <div class="mb-3">
-            <label>Name</label>
+            <label>@LocalizationService.GetOrCreateDictionaryValue("Forums.Members.Name","Name")</label>
             @Html.DisplayTextFor(m => Model.ViewMember.Name)
         </div>
 
@@ -31,7 +34,7 @@
                 {
 
                     <div class="mb-3">
-                        <label>@property.Alias</label> : <label>@property.GetValue()</label>
+                        <label>@LocalizationService.GetOrCreateDictionaryValue($"Forums.Members.{property.Alias}", property.Alias)</label> : <label>@property.GetValue()</label>
                     </div>
                 }
             }

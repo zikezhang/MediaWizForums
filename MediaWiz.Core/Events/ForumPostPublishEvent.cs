@@ -88,6 +88,7 @@ namespace MediaWiz.Forums.Events
 
                         using var cref = _context.EnsureUmbracoContext();
                         {
+                            //cref.UmbracoContext.Content.GetByRoute("url");
                             var cache = cref.UmbracoContext.Content;
                             
                             var post = cache.GetById(item.Id);
@@ -103,6 +104,7 @@ namespace MediaWiz.Forums.Events
                                 // if we have a parent post, then this is a reply 
                                 postRoot = post.Parent;
                                 invalidCacheList.Add($"Topic_{parent.Id}");
+                                invalidCacheList.Add($"forum_{parent.ParentId}");
                             }
                             else
                             {
@@ -131,6 +133,7 @@ namespace MediaWiz.Forums.Events
             foreach (var cache in invalidCacheList)
             {
                 _runtimeCache.ClearByKey(cache);
+
             }
 
             if (invalidCacheList.Any())

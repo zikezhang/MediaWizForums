@@ -22,7 +22,7 @@ using Umbraco.Extensions;
 
 namespace MediaWiz.Forums.Controllers
 {
-    public class upload
+    public class Upload
     {
         public string location;
     }
@@ -89,6 +89,10 @@ namespace MediaWiz.Forums.Controllers
                     var author = post.GetValue<string>("postAuthor");
                     var currentMember = _memberManager.GetCurrentMemberAsync().Result;
                     var roles =  _memberManager.GetRolesAsync(currentMember).Result;
+                    if(!roles.Contains("ForumAdministrator") && !roles.Contains("ForumModerator") && !(author != "0" && author == currentMember.Id))
+                    {
+                        return false;
+                    }
 
                     if (author != "0" && author == currentMember.Id)
                     {
@@ -208,6 +212,52 @@ namespace MediaWiz.Forums.Controllers
 
             return false;
         }    
+        [Route("approve/{id?}")]
+        public bool ApprovePost(int? id)
+        {
+            var currentMember =  _memberManager.GetUserAsync(_httpContextAccessor.HttpContext?.User!).Result;
+            var roles =  _memberManager.GetRolesAsync(currentMember).Result;
+            if (!roles.Contains("ForumAdministrator") && !roles.Contains("ForumModerator"))
+            {
+                return false;
+            }
+            if (id != null)
+            {
+                var post = _contentService.GetById(id.Value);
+
+                if (post != null)
+                {
+
+                    if (roles.Contains("ForumAdministrator") || roles.Contains("ForumModerator"))
+                    {
+                        if (post.HasProperty("approved"))
+                        {
+                            var currentState = post.GetValue<bool>("approved");
+                            post.SetValue("approved", !currentState);
+                            post.SetValue("umbracoNaviHide",currentState);
+                        }
+                        var parent = _contentService.GetParent(post);
+                        if (parent.HasProperty("unapprovedReplies"))
+                        {
+                             var counter = parent.GetValue<int>("unapprovedReplies");
+                             if(counter > 0)
+                            {
+                                counter -= 1;
+                            }
+                             parent.SetValue("unapprovedReplies", counter);
+
+                            _contentService.SaveAndPublish(parent, new string[] { "*" });
+                        }
+
+                        _contentService.SaveAndPublish(post, new string[] { "*" });
+                        return true;
+                    }
+
+                }
+            }
+
+            return false;
+        }    
  
         [Route("lockuser/{id?}")]
         public bool LockUser(int? id)
@@ -243,17 +293,17 @@ namespace MediaWiz.Forums.Controllers
         }    
         #region Installation
 
-        [Route("sendvalidation")]
-        [HttpPost]
-        public void ResendValidation(JObject jobj)
+        [Route("sendvalidation/{id}")]
+        //[HttpPost]
+        public void ResendValidation(string id)
         {
-            var id = jobj["id"].Value<int?>();
+            //var id = jobj["id"].Value<int?>();
 
             if (id == null)
             {
                 return;
             }
-            var member = _memberService.GetById(id.Value);
+            var member = _memberService.GetById(Convert.ToInt32(id));
             
             var result =  _mailService.SendVerifyAccount(member.Email,member.GetValue<string>("resetGuid")).Result;
         }
@@ -271,7 +321,7 @@ namespace MediaWiz.Forums.Controllers
 
             var file = _httpContextAccessor.HttpContext.Request.Form.Files;
             var loc = await SaveFileAsync(path, file[0]);
-            var data = new upload()
+            var data = new Upload()
             {
                 location = "/media" + loc + "?width=800"
             };

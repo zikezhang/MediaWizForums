@@ -1,9 +1,11 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 @using Umbraco.Cms.Core.Models.PublishedContent
-@using Umbraco.Cms.Core.Security
+@using Umbraco.Cms.Core.Services
 @using Umbraco.Extensions
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
-@inject IMemberManager _memberManager;
+@using MediaWiz.Forums.Extensions
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@inject ILocalizationService LocalizationService
 @{
 
     int parentId = Model.Parent.Id;
@@ -24,13 +26,15 @@
     }
 
     bool showTitle = parentPage.IsDocumentType("Forum");
-    int pageSize = Convert.ToInt32(Model.Value<decimal>("intPageSize"));
-    int.TryParse(Context.Request.Query["page"], out var pagenum);
     bool TopicIslocked = !Model.Value<bool>("allowReplies");
+    
     var sortdir = Context.Request.Query["sortdir"];
     var isSolved = Model.Value<bool>("answer");
     var items = Model.Children().Where(x => x.IsDocumentType("Forumpost") && !x.Value<bool>("postType"));
     var publishedContents = items as IPublishedContent[] ?? items.ToArray();
+
+    int pageSize = Convert.ToInt32(Model.Value<decimal>("intPageSize"));
+    int.TryParse(Context.Request.Query["page"], out var pagenum);
     var totalPages = (int)Math.Ceiling((double)publishedContents.Count() / (double)pageSize);
 
     ViewBag.Page = pagenum;
@@ -40,31 +44,19 @@
 
 
 <ul class="forums wiz-replies">
-    <li class="wiz-header bg-secondary">
+    <li class="wiz-header color_dark bold">
         <div class="row">
             <div class="col-9">
                 @if (showTitle)
                 {
                     <h4 id="@Model.Id" class="color_dark">
-                        @Model.Value("postTitle")
+                        <label for="thread-sort">@Model.Value("postTitle")</label>
                     </h4>
                 }
             </div>
             <div class="col-3">
-
-                <select class="form-select" name="Sortby" id="thread-sort">
-                    @if (sortdir != "DESC")
-                    {
-                        <option value="DESC">Newest First</option>
-                        <option value="ASC" selected="selected">Oldest First</option>
-                    }
-                    else
-                    {
-                        <option value="DESC" selected="selected">Newest First</option>
-                        <option value="ASC">Oldest First</option>
-                    }
-
-                </select>
+                
+                &nbsp;
 
             </div>
         </div>
@@ -77,6 +69,34 @@
                 @await Component.InvokeAsync("Posts",new {Template = "DisplayPost",Model = Model,showTitle = true})
 
                 var replies = publishedContents.OrderBy(x => x.CreateDate);
+                @if (replies.Count() > 1)
+                {
+                    <li class="wiz-body">
+                        <div class="row">
+                            <div class="col-9">
+                                &nbsp;
+                            </div>
+                            <div class="col-3">
+
+                                <select class="form-select" name="Sortby" id="thread-sort">
+                                    @if (sortdir != "DESC")
+                                    {
+                                        <option value="DESC">@LocalizationService.GetOrCreateDictionaryValue("Forums.Sort.Newest", "Newest First")</option>
+                                        <option value="ASC" selected="selected">@LocalizationService.GetOrCreateDictionaryValue("Forums.Sort.Oldest", "Oldest First")</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="DESC" selected="selected">@LocalizationService.GetOrCreateDictionaryValue("Forums.Sort.Newest", "")Newest First</option>
+                                        <option value="ASC">@LocalizationService.GetOrCreateDictionaryValue("Forums.Sort.Oldest", "Oldest First")</option>
+                                    }
+
+                                </select>
+
+                            </div>
+                        </div>
+
+                    </li>
+                }
                 if (!String.IsNullOrWhiteSpace(sortdir))
                 {
                     if (sortdir == "DESC")
@@ -87,11 +107,11 @@
                 foreach (var reply in replies.Skip((pagenum - 1) * pageSize).Take(pageSize))
                 {
                     @await Component.InvokeAsync("Posts",new {Template = "DisplayPost",Model = reply, showTitle = false})
-                    //DisplayPost(reply, false);
                 }
             }
         </ul>
     </li>
+
 </ul>
 @if (totalPages > 1)
 {
