@@ -22,7 +22,7 @@
         <h4>@String.Format(titleStr,Model.CurrentUser.UserName)</h4>
         <hr />
         <div class="mb-3">
-            <label>@LocalizationService.GetOrCreateDictionaryValue("Forums.Members.Name","Name")Name</label>
+            <label>@LocalizationService.GetOrCreateDictionaryValue("Forums.Members.Name","Name")</label>
             @Html.DisplayTextFor(m => Model.ViewMember.Name)
         </div>
 
@@ -34,6 +34,7 @@
                 {
 
                     <div class="mb-3">
+                        <label>@LocalizationService.GetOrCreateDictionaryValue($"Forums.Members.{property.Alias}", property.Alias)</label>
                         <label>@property.Alias</label> : <label>@property.GetValue()</label>
                     </div>
                 }
