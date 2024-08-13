@@ -63,7 +63,7 @@ namespace MediaWiz.Forums.Migrations
                 AddForumMemberType();
                 AddMemberGroups();
                 UpdatePostCounts();
-                //AddDictionaryItems();
+                AddDictionaryItems();
                 //Make sure the Forum root has been published
                 _contentService.SaveAndPublishBranch(contentForum, true);
             }
@@ -389,7 +389,7 @@ namespace MediaWiz.Forums.Migrations
                     newitem = _localizationService.GetDictionaryItemByKey("Forums.LoginUrl") ?? new DictionaryItem(parentnode.Key,"Forums.LoginUrl");
                     _localizationService.AddOrUpdateDictionaryValue(newitem,lang,"/login" );
                     _localizationService.Save(newitem);
-                    newitem = _localizationService.GetDictionaryItemByKey("Forums.CaptchaErrMsg") ?? new DictionaryItem(parentnode.Key,"Forums.LoginUrl");
+                    newitem = _localizationService.GetDictionaryItemByKey("Forums.CaptchaErrMsg") ?? new DictionaryItem(parentnode.Key,"Forums.CaptchaErrMsg");
                     _localizationService.AddOrUpdateDictionaryValue(newitem,lang,"Incorrect answer" );
                     _localizationService.Save(newitem);
                     newitem = _localizationService.GetDictionaryItemByKey("Forums.RegisterUrl") ?? new DictionaryItem(parentnode.Key,"Forums.RegisterUrl");
