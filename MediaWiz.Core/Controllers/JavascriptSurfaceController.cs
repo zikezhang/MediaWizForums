@@ -46,7 +46,7 @@ namespace MediaWiz.Forums.Controllers
                         {
                             var translation = _localizationService.GetDictionaryItemByKey(descendantItem.ItemKey);
 
-                            local.AppendLine($"local.{descendantItem.ItemKey.Replace(".","")} = \"{HttpUtility.HtmlEncode(translation.GetDefaultValue())}\";");
+                            local.AppendLine($"local.{descendantItem.ItemKey.Replace(".","")} = \"{HttpUtility.HtmlEncode(translation?.GetDefaultValue())}\";");
                         }
                     }
                 }
@@ -54,7 +54,8 @@ namespace MediaWiz.Forums.Controllers
             }
             foreach (var item in keys.Split(","))
             {
-                local.AppendLine($"local.{item.Replace(".","")} = \"{_localizationService.GetDictionaryItemByKey(item)}\";");
+                var translation = _localizationService.GetDictionaryItemByKey(item);
+                local.AppendLine($"local.{item.Replace(".","")} = \"{HttpUtility.HtmlEncode(translation?.GetDefaultValue())}\";");
             }
 
             return new  JavaScriptResult(local.ToString());
