@@ -389,7 +389,9 @@ namespace MediaWiz.Forums.Migrations
                     newitem = _localizationService.GetDictionaryItemByKey("Forums.LoginUrl") ?? new DictionaryItem(parentnode.Key,"Forums.LoginUrl");
                     _localizationService.AddOrUpdateDictionaryValue(newitem,lang,"/login" );
                     _localizationService.Save(newitem);
+
                     newitem = _localizationService.GetDictionaryItemByKey("Forums.CaptchaErrMsg") ?? new DictionaryItem(parentnode.Key,"Forums.CaptchaErrMsg");
+
                     _localizationService.AddOrUpdateDictionaryValue(newitem,lang,"Incorrect answer" );
                     _localizationService.Save(newitem);
                     newitem = _localizationService.GetDictionaryItemByKey("Forums.RegisterUrl") ?? new DictionaryItem(parentnode.Key,"Forums.RegisterUrl");

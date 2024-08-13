@@ -19,7 +19,7 @@
     }
     else
     {
-        <h4>@String.Format(titleStr,Model.CurrentUser.UserName)</h4>
+        <h4>@String.Format(titleStr, Model.ViewMember.Name)</h4>
         <hr />
         <div class="mb-3">
             <label>@LocalizationService.GetOrCreateDictionaryValue("Forums.Members.Name","Name")</label>

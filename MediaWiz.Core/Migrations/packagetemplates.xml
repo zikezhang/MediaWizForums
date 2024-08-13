@@ -626,7 +626,7 @@ else
 
 @section ForumScripts
 {
-    <script type="text/javascript" src="/umbraco/surface/JavascriptSurface/LoadResources/?keys=Forums.CaptchaErrMsg"></script>
+    <script type="text/javascript" src="/umbraco/surface/JavascriptSurface/LoadResources/?keys=Forums.Captcha.ErrMsg"></script>
 
     <script type="text/javascript">
         $.fn.clearValidation = function(){var v = $(this).validate();$('[name]',this).each(function(){v.successList.push(this);v.showErrors();});v.resetForm();v.reset();};
